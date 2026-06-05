@@ -27,8 +27,11 @@ export const Widget = ({ config, onStable }: WidgetProps) => {
         }
 
         activity.log(
-            'search',
-            'search.started'
+            'search.started',
+            `The search for "${searchTerm}" is starting`,
+            {
+                searchTerm
+            }
         );
 
         setState((previous) => ({
@@ -40,9 +43,15 @@ export const Widget = ({ config, onStable }: WidgetProps) => {
             resolve => setTimeout(resolve, 1000)
         );
 
+        const resultCount = searchTerm.length * 3;
+
         activity.log(
-            'search',
-            'search.completed'
+            'search.completed',
+            `The search for ${searchTerm} returned ${resultCount} results`,
+            {
+                searchTerm,
+                resultCount
+            }
         );
 
         setState((previous) => ({
