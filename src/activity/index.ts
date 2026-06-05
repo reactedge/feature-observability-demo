@@ -1,4 +1,5 @@
 import { isActivityEnabled } from './activity.guard';
+import {ACTIVITY_EVENT_NAME} from "../runtime/constants.ts";
 
 type Level = 'info' | 'warn' | 'error';
 
@@ -41,7 +42,6 @@ export class WidgetActivity
         data?: unknown,
         level: Level = 'info'
     ): void {
-
         const payload: ActivityPayload = {
             widget: this.widget,
             instance: this.instance ?? this.widget,
@@ -63,9 +63,9 @@ export class WidgetActivity
             } else {
                 console.log(prefix, payload);
             }
-
-            this.dispatchActivityEvent(payload);
         }
+
+        this.dispatchActivityEvent(payload);
     }
 
     private dispatchActivityEvent(
@@ -78,7 +78,7 @@ export class WidgetActivity
 
         window.dispatchEvent(
             new CustomEvent(
-                'reactedge:activity',
+                ACTIVITY_EVENT_NAME,
                 {
                     detail: payload,
                 }

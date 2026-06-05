@@ -1,4 +1,6 @@
-import {getTracer, setupTelemetry, SEVICE_NAME} from "./telemetry.ts";
+import {getTracer, setupTelemetry} from "./telemetry.ts";
+import {ACTIVITY_EVENT_NAME} from "../constants.ts";
+import {flattenAttributes} from "./data-parser.ts";
 
 export type ActivityEvent =
     CustomEvent<ActivityPayload>;
@@ -19,7 +21,7 @@ export function startObservability() {
     setupTelemetry();
 
     window.addEventListener(
-        SEVICE_NAME,
+        ACTIVITY_EVENT_NAME,
         (event) => {
             const payload =
                 (event as ActivityEvent).detail;
@@ -28,13 +30,21 @@ export function startObservability() {
                 `widget.${payload.widget}.${payload.phase}`
             );
 
-            span.setAttributes({
+            const attributes: Attributes = {
                 'reactedge.widget': payload.widget,
-                'reactedge.instance': payload.instance,
                 'reactedge.phase': payload.phase,
-                'reactedge.level': payload.level,
-                'reactedge.message': payload.message
-            });
+                'reactedge.level': payload.level
+            };
+
+            Object.assign(
+                attributes,
+                flattenAttributes(
+                    'reactedge.data',
+                    payload.data
+                )
+            );
+
+            span.setAttributes(attributes);
 
             span.end();
         }

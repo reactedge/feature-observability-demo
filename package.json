@@ -15,8 +15,10 @@
     "@opentelemetry/resources": "^2.7.1",
     "@opentelemetry/sdk-trace-base": "^2.7.1",
     "@opentelemetry/sdk-trace-web": "^2.7.1",
+    "@vitejs/plugin-react-swc": "^4.3.1",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "rollup-plugin-visualizer": "^7.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
