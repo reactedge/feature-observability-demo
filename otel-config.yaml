@@ -5,7 +5,7 @@ receivers:
         endpoint: 0.0.0.0:4318
         cors:
           allowed_origins:
-            - "*" # change to a more narrow url on production environment
+            - "*"
 exporters:
   otlp:
     endpoint: jaeger:4317
