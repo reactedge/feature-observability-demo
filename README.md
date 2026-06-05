@@ -43,6 +43,81 @@ search.failed
 
 Feature observability allows us to capture and analyse those journeys.
 
+## Quick Start
+
+### Prerequisites
+
+* Node.js and npm installed
+* Docker installed and running
+* Port `16686` available for Jaeger UI
+
+### Run the Demo
+
+Clone the repository:
+
+```bash
+git clone git@github.com:reactedge/feature-observability-demo.git
+cd feature-observability-demo
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the React application:
+
+```bash
+npm run dev
+```
+
+Start Jaeger:
+
+```bash
+docker compose up -d
+```
+
+Verify the Jaeger container is running:
+
+```bash
+docker logs feature-observability-demo-jaeger-1
+```
+
+Verify the Jaeger API is available:
+
+```bash
+curl http://localhost:16686/api/services
+```
+
+Expected response before any traces are generated:
+
+```json
+{
+  "data": null,
+  "total": 0,
+  "limit": 0,
+  "offset": 0,
+  "errors": null
+}
+```
+
+Open Jaeger:
+
+```text
+http://localhost:16686
+```
+
+Open the React application:
+
+```text
+http://localhost:5173
+```
+
+Enter a search term and click **Search**.
+
+The generated activity events will be exported to OpenTelemetry and appear as traces within Jaeger.
+
 ## What does this repository demonstrate?
 
 The demo contains:
@@ -85,40 +160,6 @@ The feature itself remains unaware of Jaeger or OpenTelemetry implementation det
 
 It simply reports activity.
 
-## Running the Demo
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Start Jaeger and the OpenTelemetry Collector:
-
-```bash
-docker compose up -d
-```
-
-Start the application:
-
-```bash
-npm run dev
-```
-
-Open:
-
-```text
-http://localhost:5173
-```
-
-Open Jaeger:
-
-```text
-http://localhost:16686
-```
-
-Perform a search and observe the generated traces.
-
 ## Why this matters
 
 As frontend architectures become increasingly modular, independently deployed features should become independently observable.
@@ -129,39 +170,25 @@ Observability is the foundation.
 
 Self-healing features are the next step.
 
-## Production Considerations
+## Security Considerations
 
-This repository intentionally bundles the telemetry implementation inside the widget.
+The OpenTelemetry Collector configuration used by this repository is intentionally simplified for local development.
 
-The goal is to keep the example self-contained and easy to understand:
+For example:
 
-Widget
-↓
-Telemetry
-↓
-OpenTelemetry
-↓
-Observability Platform
+* OTLP HTTP ingestion is exposed on `0.0.0.0:4318`
+* CORS is configured with `allowed_origins: ["*"]`
+* Communication between the collector and Jaeger uses insecure TLS within the local Docker network
 
-For a small demonstration project this approach is perfectly acceptable.
+These settings make the demo easy to run and understand but should not be considered production-ready.
 
-For production environments, a different architecture is recommended:
+A production deployment would typically:
 
-Widget
-↓
-Telemetry Contract
-↓
-Shared Telemetry Runtime
-↓
-Observability Platform
+* Restrict telemetry ingestion to known origins
+* Enable TLS between observability components
+* Apply authentication and authorization controls
+* Filter or redact sensitive telemetry payloads
+* Introduce telemetry sampling and rate limiting
+* Apply GDPR and data retention policies
 
-In this model:
-
-Widgets emit activity through a lightweight interface.
-Telemetry libraries are loaded once by the host application.
-Multiple widgets share the same telemetry runtime.
-Bundle sizes remain smaller.
-Telemetry configuration can be managed centrally.
-Observability can evolve independently from individual widgets.
-
-The current implementation therefore demonstrates the observability concepts rather than the final deployment architecture.
+The goal of this repository is to demonstrate frontend observability concepts rather than provide a hardened production observability platform.
