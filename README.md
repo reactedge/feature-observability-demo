@@ -2,7 +2,7 @@
 
 A lightweight observability widget that captures frontend activity and exports it using OpenTelemetry-compatible telemetry.
 
-The project is based on the simple idea that each feature `have a lifecycle`: 
+The project is based on the simple idea that UI features `have a lifecycle`: 
 
 User Interaction
 ↓
