@@ -22,6 +22,13 @@ export interface Activity {
     ): void;
 }
 
+export interface Operation {
+    id: string;
+    name: string;
+    startedAt: number;
+    data?: Record<string, unknown>;
+}
+
 export class WidgetActivity
     implements Activity {
 
@@ -34,6 +41,67 @@ export class WidgetActivity
     ) {
         this.widget = widget;
         this.instance = instance;
+    }
+
+    public startOperation(
+        name: string,
+        data: Record<string, unknown> = {}
+    ): Operation {
+        const operation: Operation = {
+            id: crypto.randomUUID(),
+            name,
+            startedAt: performance.now(),
+            data
+        };
+
+        this.log(
+            `${name}.started`,
+            `${name} started`,
+            {
+                operationId: operation.id,
+                ...data
+            }
+        );
+
+        return operation;
+    }
+
+    public endOperation(
+        operation: Operation,
+        data: Record<string, unknown> = {}
+    ): void {
+
+        const durationMs =
+            performance.now() - operation.startedAt;
+
+        this.log(
+            `${operation.name}.completed`,
+            `${operation.name} completed`,
+            {
+                operationId: operation.id,
+                durationMs,
+                ...operation.data,
+                ...data
+            }
+        );
+    }
+
+    public failOperation(
+        operation: Operation,
+        data: Record<string, unknown> = {}
+    ): void {
+        const duration = Date.now() - operation.startedAt;
+
+        this.log(
+            `${operation.name}.failed`,
+            `${operation.name} failed`,
+            {
+                operationId: operation.id,
+                duration,
+                ...data
+            },
+            'error'
+        );
     }
 
     public log(
