@@ -26,38 +26,48 @@ export const Widget = ({ config, onStable }: WidgetProps) => {
             return;
         }
 
-        activity.log(
-            'search.started',
-            `The search for "${searchTerm}" is starting`,
-            {
-                searchTerm
+        const operation = activity.startOperation(
+            'search',
+            {searchTerm}
+        );
+
+        try {
+            await new Promise(
+                resolve => setTimeout(resolve, 1000)
+            );
+
+            if (searchTerm === 'error') {
+                throw new Error('Search backend unavailable');
             }
-        );
 
-        setState((previous) => ({
-            ...previous,
-            status: 'searching'
-        }));
+            const resultCount = searchTerm.length * 3;
 
-        await new Promise(
-            resolve => setTimeout(resolve, 1000)
-        );
+            activity.endOperation(
+                operation,
+                {
+                    resultCount
+                }
+            );
 
-        const resultCount = searchTerm.length * 3;
+            setState(previous => ({
+                ...previous,
+                status: 'success'
+            }));
+        } catch (error) {
+            activity.failOperation(
+                operation,
+                {
+                    error: error instanceof Error
+                        ? error.message
+                        : 'Unknown error'
+                }
+            );
 
-        activity.log(
-            'search.completed',
-            `The search for ${searchTerm} returned ${resultCount} results`,
-            {
-                searchTerm,
-                resultCount
-            }
-        );
-
-        setState((previous) => ({
-            ...previous,
-            status: 'success'
-        }));
+            setState(previous => ({
+                ...previous,
+                status: 'error'
+            }));
+        }
     }
 
     return (
